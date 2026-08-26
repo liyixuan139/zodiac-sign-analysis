@@ -1,0 +1,10 @@
+# 星语 · 星座分析 - Netlify 部署配置
+[build]
+  publish = "public"              # 发布目录：网页静态文件
+  functions = "netlify/functions" # 函数目录：后端 API
+
+# /api/* 重写到 Netlify Function（status 200 = 内部重写，URL 不变）
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200

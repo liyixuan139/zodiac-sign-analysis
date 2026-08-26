@@ -1,0 +1,21 @@
+{
+  "name": "xingyu-zodiac",
+  "version": "1.0.0",
+  "description": "星语 · 星座分析 —— 网页版 + 命令行版 + Express 后端 API，共享同一份星座数据",
+  "private": true,
+  "bin": {
+    "zodiac": "./zodiac.js"
+  },
+  "scripts": {
+    "cli": "node zodiac.js",
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

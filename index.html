@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星语 · 星座分析</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stars"></div>
+<div id="confetti"></div>
+
+<div class="wrap">
+  <header>
+    <span class="logo">🌌</span>
+    <h1>星语 · 星座分析</h1>
+    <p class="subtitle">输入生日，解锁你的星座密码</p>
+    <div id="webmcpBadge" class="webmcp-badge" hidden title="">🤖 AI 助手已连接，可被 ChatGPT / Chrome 调用</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="main">🌟 星座分析</button>
+    <button class="tab" data-tab="pair">💞 配对测试</button>
+    <button class="tab" data-tab="birthday">🎂 生日提醒</button>
+  </nav>
+
+  <div class="birthday-banner" id="bdBanner" hidden>
+    🎂 <b>生日快乐！</b>今天是你的生日，愿所有好运都奔向你～
+  </div>
+
+  <!-- ================= 星座分析 ================= -->
+  <div class="tab-page active" id="tab-main">
+    <div class="card input-card">
+      <label for="birthday">🎂 生日</label>
+      <input type="date" id="birthday">
+      <button class="analyze" onclick="analyze()">✦ 开始分析</button>
+    </div>
+
+    <section id="result">
+      <div class="banner">
+        <div class="card sign-hero" id="hero"></div>
+        <div class="card radar-card">
+          <div class="card-title" style="align-self:flex-start;margin-left:8px;">性格维度</div>
+          <div class="radar-wrap">
+            <svg id="radar" viewBox="0 0 340 320" role="img" aria-label="性格维度雷达图"></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="fortune-row">
+        <div class="card section-card" id="fortuneCard"></div>
+        <div class="card section-card" id="personalityCard"></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card section-card" id="loveCard"></div>
+        <div class="card section-card" id="careerCard"></div>
+        <div class="card section-card" id="healthCard"></div>
+      </div>
+
+      <div class="card section-card trend-card">
+        <div class="card-title">📈 运势趋势</div>
+        <div class="trend-toolbar">
+          <span class="trend-range">
+            <button class="range-btn active" data-days="7" onclick="setTrendDays(7)">近 7 天</button>
+            <button class="range-btn" data-days="30" onclick="setTrendDays(30)">近 30 天</button>
+          </span>
+          <span class="trend-hint">👆 悬停折线查看每日运势</span>
+        </div>
+        <div class="trend-wrap"><svg id="trendChart" viewBox="0 0 640 260" role="img" aria-label="运势趋势折线图"></svg></div>
+      </div>
+
+      <div class="fortune-row">
+        <div class="card section-card" id="luckyCard"></div>
+        <div class="card section-card" id="matchCard"></div>
+      </div>
+    </section>
+
+    <div class="all-signs">
+      <h3>✨ 十二星座速览（点击查看）</h3>
+      <div class="sign-grid" id="signGrid"></div>
+    </div>
+  </div>
+
+  <!-- ================= 配对测试 ================= -->
+  <div class="tab-page" id="tab-pair">
+    <div class="card pair-form">
+      <label for="pairA">我</label>
+      <select id="pairA"></select>
+      <button class="swap-btn" title="互换" onclick="swapPair()">⇄</button>
+      <span class="vs-badge">VS</span>
+      <label for="pairB">对方</label>
+      <select id="pairB"></select>
+      <button class="analyze" onclick="renderPair()">💞 测一测</button>
+    </div>
+
+    <div id="pairResult">
+      <div class="card pair-top">
+        <div class="ring-wrap">
+          <svg id="ring" viewBox="0 0 150 150">
+            <circle cx="75" cy="75" r="62" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="13"/>
+            <circle id="ringBar" cx="75" cy="75" r="62" fill="none" stroke="var(--accent)" stroke-width="13"
+                    stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"
+                    style="transition: stroke-dashoffset 1.2s cubic-bezier(.2,.7,.3,1);"/>
+          </svg>
+          <div class="ring-val"><span class="num" id="ringNum">0</span><span class="cap">缘分指数</span></div>
+        </div>
+        <div class="pair-info">
+          <div class="vs-row" id="pairNames"></div>
+          <div class="pair-el" id="pairEl"></div>
+          <span class="pair-verdict" id="pairVerdict"></span>
+          <p id="pairAdvice"></p>
+        </div>
+      </div>
+      <div class="card pair-dims">
+        <div class="card-title" style="margin-bottom:20px;">五维契合度</div>
+        <div id="pairDimList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 生日提醒 ================= -->
+  <div class="tab-page" id="tab-birthday">
+    <div class="card bd-card">
+      <div class="card-title">🎂 生日当天推送</div>
+      <p class="bd-desc">
+        把生日保存在浏览器本地。之后每次打开本页面，都会自动检测——
+        <b>生日当天</b>会弹出庆祝动画、系统通知和生日横幅，并显示下一次生日的倒计时。
+        无需联网，数据不会上传。
+      </p>
+      <div class="bd-setup" id="bdSetup">
+        <label for="bdInput">🎂 你的生日</label>
+        <input type="date" id="bdInput">
+        <button class="analyze" onclick="saveBirthdayUI()">开启提醒</button>
+      </div>
+      <div class="bd-status" id="bdStatus" hidden></div>
+      <p class="bd-note">💡 提示：浏览器弹出系统通知需在地址栏允许「通知」权限。若当天打开页面时已过零点，也会照常触发。</p>
+    </div>
+  </div>
+
+  <footer>✦ 仅供娱乐参考 · 星象之说，图个乐子 ✦</footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script src="data.js"></script>
+<script src="webmcp.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
