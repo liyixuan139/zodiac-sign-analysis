@@ -10,9 +10,9 @@
 |----|------|
 | 项目名称 | 星语 · 星座分析（Xingyu Zodiac） |
 | 一句话介绍 | 一个通过 WebMCP 让 AI 助手直接调用星座功能的趣味网站 |
-| 部署链接 | `<填线上链接，如 https://xxx.vercel.app 或 Netlify 链接>` |
-| 开源仓库 | `<填 GitHub 仓库链接>` |
-| 演示视频 | `<填 3 分钟视频链接>` |
+| 部署链接 | https://zodiac-sign-analysis.netlify.app |
+| 开源仓库 | https://github.com/liyixuan139/zodiac-sign-analysis |
+| 演示视频 | https://github.com/liyixuan139/zodiac-sign-analysis/releases/download/demo-video/final_demo.mp4 |
 
 ---
 
@@ -101,8 +101,8 @@ npm start                 # 打开 http://localhost:3000
 
 ## ✅ 提交前自检清单
 
-- [ ] 代码已开源并提交 GitHub（仓库链接填入上方）
-- [ ] 线上部署链接可公开访问（HTTPS）
-- [ ] 3 分钟演示视频已录制并上传（脚本见 `DEMO-SCRIPT.md`）
+- [x] 代码已开源并提交 GitHub（仓库链接填入上方）
+- [x] 线上部署链接可公开访问（HTTPS）
+- [x] 3 分钟演示视频已录制并上传（脚本见 `DEMO-SCRIPT.md`）
 - [ ] 视频、文字描述、可运行代码库均已按比赛页面要求提交
 - [ ] 确认参赛地区在允许列表内
