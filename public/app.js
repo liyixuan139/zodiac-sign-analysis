@@ -263,6 +263,15 @@ function getStoredBirthday() { try { return localStorage.getItem(BD_KEY); } catc
 function storeBirthday(v) { try { localStorage.setItem(BD_KEY, v); } catch (e) {} }
 function clearBirthday() { try { localStorage.removeItem(BD_KEY); } catch (e) {} }
 
+/* 供 WebMCP 工具（webmcp.js）复用的生日 API */
+window.__ZODIAC_BD__ = {
+  get: getStoredBirthday,
+  set: storeBirthday,
+  clear: clearBirthday,
+  isToday: isTodayBirthday,
+  daysToNext: daysToNextBirthday
+};
+
 function isTodayBirthday(bdStr) {
   const [y, m, d] = bdStr.split("-").map(Number);
   const now = new Date();

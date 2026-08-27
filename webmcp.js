@@ -3,12 +3,17 @@
    =====================================================================
    WebMCP (Web Model Context Protocol) 让 AI 助手能直接调用网站暴露的工具，
    而不是像人类一样靠点击、输入去猜页面。本文件通过浏览器 API
-   document.modelContext.registerTool() 注册 4 个只读工具：
+   document.modelContext.registerTool() 注册 7 个工具：
 
+   只读分析：
      list_zodiac_signs   列出全部 12 星座（供 AI 先确认星座写法）
      analyze_birthday    生日 → 星座全维度档案 + 今日运势
      daily_fortune       星座 + 日期 → 当日运势
      pair_compatibility  两个星座 → 缘分指数与相处建议
+   有状态动作（读写浏览器本地存储，让 AI 真正"操作"网站）：
+     set_birthday        保存用户生日，生日当天自动提醒 + 庆祝（若当天即生日则直接触发）
+     get_birthday        读取已保存的生日
+     clear_birthday      删除已保存的生日
 
    兼容环境：
      - ChatGPT 桌面版内置浏览器（原生支持）
@@ -49,6 +54,20 @@
   const badSign = input => ({
     error: "无法识别星座「" + input + "」。支持 key（aries / leo）、中文名（白羊座 / 白羊）、英文（Aries）、符号（♈）。可先调用 list_zodiac_signs 查看全部星座的写法。"
   });
+
+  // 生日相关：读写 app.js 暴露的 window.__ZODIAC_BD__（浏览器本地存储）
+  const BD = () => window.__ZODIAC_BD__;
+
+  // 校验真实存在的 YYYY-MM-DD 日期，返回归一化对象；不合法返回 null
+  function validDate(s) {
+    const m = String(s).trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    if (!m) return null;
+    const y = +m[1], mo = +m[2], d = +m[3];
+    if (y < 1900 || y > 2100) return null;
+    const dt = new Date(y, mo - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+    return { y, m: mo, d, str: y + "-" + pad2(mo) + "-" + pad2(d) };
+  }
 
   const tools = [
     {
@@ -149,6 +168,79 @@
           dims: DIM_KEYS.map((k, i) => ({ dim: k, score: r.dims[i] })),
           verdict: { label: r.verdict.label, advice: r.verdict.advice, color: r.verdict.color }
         };
+      }
+    },
+
+    /* ---- 生日管理（有状态动作）：让 AI 真正"操作"网站，而非只读查询 ---- */
+    {
+      name: "set_birthday",
+      description: "把用户的生日保存到本站（浏览器本地存储）。保存后生日当天页面会自动推送提醒并弹出庆祝动画。返回确认信息、所属星座、距下一次生日的天数；若当天正是生日，还会直接触发庆祝效果。",
+      inputSchema: {
+        type: "object",
+        properties: {
+          birthday: { type: "string", format: "date", description: "出生日期，格式 YYYY-MM-DD，例如 1996-08-15" }
+        },
+        required: ["birthday"]
+      },
+      annotations: { readOnlyHint: false },
+      execute({ birthday }) {
+        if (!birthday) return { error: "缺少 birthday 参数，格式 YYYY-MM-DD，例如 1996-08-15" };
+        const v = validDate(birthday);
+        if (!v) return { error: "生日格式不正确：「" + birthday + "」。请用 YYYY-MM-DD 且为真实存在的日期，例如 1996-08-15" };
+        const bd = BD();
+        if (!bd) return { error: "当前环境不支持本地存储，无法保存生日" };
+        bd.set(v.str);
+        const key = getSignKey(v.m, v.d);
+        const today = bd.isToday(v.str);
+        if (today && typeof playCelebration === "function") { try { playCelebration(); } catch (e) {} }
+        if (typeof renderBirthdayUI === "function") { try { renderBirthdayUI(); } catch (e) {} }
+        return {
+          ok: true,
+          birthday: v.str,
+          sign: signSummary(key),
+          isBirthdayToday: today,
+          daysToNextBirthday: bd.daysToNext(v.str),
+          note: today
+            ? "今天是你的生日！已触发庆祝动画与推送 🎉"
+            : "生日已保存，到生日当天页面会自动提醒与庆祝。"
+        };
+      }
+    },
+    {
+      name: "get_birthday",
+      description: "读取本站已保存的用户生日（若有）。返回生日、所属星座与距下一次生日的天数；若尚未设置则提示可调用 set_birthday。",
+      inputSchema: { type: "object", properties: {}, required: [] },
+      annotations: { readOnlyHint: true },
+      execute() {
+        const bd = BD();
+        if (!bd) return { error: "当前环境不支持本地存储" };
+        const stored = bd.get();
+        if (!stored) {
+          return { birthday: null, set: false, hint: "尚未设置生日，可调用 set_birthday 保存。设置后生日当天会收到提醒与庆祝。" };
+        }
+        const v = validDate(stored);
+        const key = v ? getSignKey(v.m, v.d) : null;
+        return {
+          birthday: stored,
+          set: true,
+          sign: key ? signSummary(key) : null,
+          isBirthdayToday: bd.isToday(stored),
+          daysToNextBirthday: bd.daysToNext(stored)
+        };
+      }
+    },
+    {
+      name: "clear_birthday",
+      description: "删除本站已保存的用户生日，关闭生日提醒与庆祝功能。返回删除确认。",
+      inputSchema: { type: "object", properties: {}, required: [] },
+      annotations: { readOnlyHint: false },
+      execute() {
+        const bd = BD();
+        if (!bd) return { error: "当前环境不支持本地存储" };
+        const had = bd.get();
+        bd.clear();
+        if (typeof renderBirthdayUI === "function") { try { renderBirthdayUI(); } catch (e) {} }
+        return { ok: true, hadBirthday: !!had, removed: had || null, note: had ? "已删除生日提醒。" : "本来就没有设置生日，无需删除。" };
       }
     }
   ];
