@@ -22,6 +22,7 @@
     <button class="tab active" data-tab="main">🌟 星座分析</button>
     <button class="tab" data-tab="pair">💞 配对测试</button>
     <button class="tab" data-tab="birthday">🎂 生日提醒</button>
+    <button class="tab" data-tab="webmcp">🤖 WebMCP</button>
   </nav>
 
   <div class="birthday-banner" id="bdBanner" hidden>
@@ -138,6 +139,31 @@
     </div>
   </div>
 
+  <!-- ================= WebMCP 工具展示 ================= -->
+  <div class="tab-page" id="tab-webmcp">
+    <div class="card wmcp-intro">
+      <div class="wmcp-intro-h">
+        <span class="wmcp-intro-icon">🤖</span>
+        <div>
+          <h3>星语已接入 <b>WebMCP</b> —— AI 可以直接「操作」本站</h3>
+          <p class="wmcp-intro-p">
+            WebMCP（Web Model Context Protocol）让 AI 助手直接调用网站暴露的能力，而不是靠猜页面点来点去。
+            本站向 AI 暴露了 <b>7 个工具</b>：分析星座 / 运势 / 配对，还能替你<b>保存生日</b>并触发网页庆祝。
+            用 <b>ChatGPT 桌面版</b> 或 <b>Chrome 149+</b>（开启 WebMCP 测试）打开本站，AI 就能直接调用它们。
+          </p>
+        </div>
+      </div>
+      <div class="wmcp-env" id="wmcpEnv"></div>
+      <p class="wmcp-tip">
+        💡 下面每个工具都支持 <b>手动试玩</b> —— 点击后跑的是 <code>webmcp.js</code> 里 AI 使用的那一份代码，
+        结果与 AI 调用完全一致。生日类工具会真实读写本浏览器的存储。
+      </p>
+    </div>
+
+    <h3 class="wmcp-section-title">🧰 工具清单 · 即点即试</h3>
+    <div id="wmcpTools"></div>
+  </div>
+
   <footer>✦ 仅供娱乐参考 · 星象之说，图个乐子 ✦</footer>
 </div>
 
@@ -146,5 +172,6 @@
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="webmcp.js"></script>
+<script src="webmcp-demo.js"></script>
 </body>
 </html>

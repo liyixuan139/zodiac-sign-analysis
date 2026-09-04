@@ -295,3 +295,118 @@ button.analyze:active { transform: translateY(0); }
 .empty-bd { text-align: center; color: var(--text-3); padding: 26px 0 10px; font-size: 15px; }
 
 footer { text-align: center; color: var(--text-3); font-size: 12px; margin-top: 46px; letter-spacing: 1px; }
+
+/* =====================================================
+   星语 · WebMCP 展示 Tab（说明 + 手动试玩）
+   ===================================================== */
+.wmcp-intro { padding: 26px 28px; }
+.wmcp-intro-h { display: flex; gap: 18px; align-items: flex-start; }
+.wmcp-intro-icon { font-size: 44px; line-height: 1; filter: drop-shadow(0 6px 18px rgba(109,183,240,.45)); }
+.wmcp-intro h3 { font-size: 18px; letter-spacing: 1px; margin-bottom: 10px; }
+.wmcp-intro h3 b, .wmcp-intro-p b, .wmcp-tip b { color: var(--accent); }
+.wmcp-intro-p { color: var(--text-2); font-size: 14px; max-width: 80ch; }
+.wmcp-env { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.wmcp-env-pill {
+  font-size: 12.5px; line-height: 1.8; padding: 6px 15px; border-radius: 999px;
+  border: 1px solid var(--hairline); background: rgba(255,255,255,.05); color: var(--text-2); letter-spacing: .3px;
+}
+.wmcp-env-pill b { color: var(--text); }
+.wmcp-env-pill.ok { border-color: rgba(126,203,139,.5); background: rgba(126,203,139,.12); color: #8fd79c; }
+.wmcp-tip { margin-top: 12px; font-size: 13px; color: var(--text-3); }
+.wmcp-tip code { color: var(--accent); font-family: ui-monospace, Consolas, monospace; }
+
+.wmcp-section-title { font-size: 16px; letter-spacing: 1px; margin: 30px 0 6px; font-weight: 700; }
+.wmcp-group-title { font-size: 13px; letter-spacing: 1px; margin: 20px 0 12px; color: var(--text-3); font-weight: 700; }
+
+.wmcp-tool { padding: 20px 22px; margin-bottom: 16px; }
+.wmcp-t-h { display: flex; gap: 14px; align-items: flex-start; }
+.wmcp-t-icon {
+  flex: none; width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; font-size: 23px;
+  background: var(--accent-soft); border: 1px solid var(--hairline);
+}
+.wmcp-t-meta { flex: 1; min-width: 0; }
+.wmcp-t-name { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wmcp-t-name code {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 15px; font-weight: 700;
+  color: var(--accent); letter-spacing: .3px; word-break: break-all;
+}
+.wmcp-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 2px 11px; border-radius: 999px;
+}
+.wmcp-tag.ro { color: #6db7f0; background: rgba(109,183,240,.13); border: 1px solid rgba(109,183,240,.35); }
+.wmcp-tag.action { color: #f48fb1; background: rgba(244,143,177,.13); border: 1px solid rgba(244,143,177,.35); }
+.wmcp-t-desc { color: var(--text-2); font-size: 13px; margin-top: 6px; }
+
+.wmcp-t-ctl {
+  margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--hairline);
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+}
+.wmcp-fields { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.wmcp-f { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--text-2); white-space: nowrap; }
+.wmcp-f input[type="date"], .wmcp-f select { padding: 7px 11px; font-size: 14px; }
+.wmcp-hint { font-size: 12.5px; color: var(--text-3); }
+.wmcp-run {
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--accent-soft); color: var(--accent);
+  font-family: inherit; font-size: 13.5px; font-weight: 700; letter-spacing: 1px;
+  padding: 9px 22px; border-radius: 10px; cursor: pointer; white-space: nowrap;
+  transition: transform .15s, box-shadow .2s, background .2s;
+}
+.wmcp-run:hover { transform: translateY(-1px); box-shadow: 0 8px 22px var(--accent-soft); }
+.wmcp-run:active { transform: none; }
+
+.wmcp-out { margin-top: 14px; }
+.wmcp-placeholder { color: var(--text-3); font-size: 13px; padding: 4px 2px; }
+.wmcp-placeholder code { color: var(--accent); font-family: ui-monospace, Consolas, monospace; }
+.wmcp-caption { font-size: 12px; color: var(--text-3); letter-spacing: 1px; margin: 2px 0 10px; font-weight: 700; }
+
+/* 运势块 */
+.wmcp-fort { padding: 16px 18px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-border); }
+.wmcp-fort-h { display: flex; align-items: baseline; gap: 10px; font-size: 16px; font-weight: 800; letter-spacing: .5px; margin-bottom: 10px; }
+.wmcp-date { font-weight: 400; font-size: 12px; color: var(--text-3); letter-spacing: 0; margin-left: 6px; }
+.wmcp-out .fortune-text, .wmcp-out .fortune-text p { margin-top: 12px; }
+
+/* 完整档案（analyze_birthday 的返回） */
+.wmcp-ana { min-width: 0; }
+.wmcp-hero { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; padding: 18px 20px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-border); }
+.wmcp-hero-sym { font-size: 48px; color: var(--accent); line-height: 1; text-shadow: 0 6px 24px var(--accent-soft); }
+.wmcp-hero-mid { flex: 1; min-width: 230px; }
+.wmcp-hero-name { font-size: 23px; font-weight: 800; letter-spacing: 1px; }
+.wmcp-hero-name .en { color: var(--text-3); font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-left: 8px; }
+.wmcp-hero .meta-row { margin-top: 12px; }
+.wmcp-hero .sign-intro { margin-top: 12px; }
+.wmcp-ana .wmcp-fort { margin-top: 14px; }
+.wmcp-ana .wmcp-fort .meter-label { color: var(--text-2); }
+
+/* 配对结果 */
+.pair-sum { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 800; flex-wrap: wrap; letter-spacing: .5px; }
+.pair-sum .vsx { color: var(--text-3); font-weight: 400; }
+.pair-rel { color: var(--text-3); font-size: 12.5px; margin-top: 6px; }
+.overall-line { display: flex; align-items: center; gap: 14px; margin: 14px 0 8px; flex-wrap: wrap; }
+.overall-num { font-size: 30px; font-weight: 800; color: var(--accent); line-height: 1; }
+.overall-num small { font-size: 13px; font-weight: 600; color: var(--text-3); margin-left: 2px; }
+.pair-advice { color: var(--text-2); font-size: 13.5px; margin-top: 12px; }
+.wmcp-pair .dim-row { margin-top: 12px; }
+.wmcp-pair .meter-fill { background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #fff)); }
+
+/* 生日状态结果 */
+.wmcp-bd-card { padding: 16px 20px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-border); }
+.wmcp-bd-card .wmrow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 2px; border-bottom: 1px dashed var(--hairline); font-size: 14px; }
+.wmcp-bd-card .wmrow:last-of-type { border-bottom: none; }
+.wmcp-bd-card .k { color: var(--text-3); flex-shrink: 0; }
+.wmcp-bd-card .v { font-weight: 600; text-align: right; }
+.wmcp-bd-card .v.is-today { color: #ff8a5c; font-weight: 800; }
+.wmcp-note { margin-top: 12px; font-size: 13px; line-height: 1.7; padding: 10px 14px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid var(--hairline); color: var(--text-2); }
+.wmcp-note:first-child { margin-top: 0; }
+.wmcp-note.ok { border-color: rgba(126,203,139,.4); background: rgba(126,203,139,.09); color: #8fd79c; }
+.wmcp-note.warn { border-color: rgba(244,211,94,.4); background: rgba(244,211,94,.08); color: #f4d35e; }
+.wmcp-raw {
+  background: rgba(0,0,0,.35); border: 1px solid var(--hairline); border-radius: 12px;
+  padding: 12px 14px; font-size: 12.5px; line-height: 1.6; overflow: auto; max-height: 320px;
+  font-family: ui-monospace, Consolas, monospace; white-space: pre-wrap; color: var(--text-2);
+}
+
+/* 尺寸微调 */
+.wmcp-out .section-card p { font-size: 13.5px; }
+.wmcp-ana > .card.section-card { margin-top: 14px; }

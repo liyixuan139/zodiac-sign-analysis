@@ -35,8 +35,10 @@
 
   const badge = document.getElementById("webmcpBadge");
   if (badge) badge.hidden = !supported;
-  if (!supported) return;
 
+  // 工具定义不依赖 WebMCP 环境，始终构建 ——
+  // AI 在支持的环境里注册并调用；普通浏览器则由 webmcp-demo.js 做「手动试玩」。
+  // 两边复用同一批 execute，保证 AI 调用与页面试玩结果完全一致。
   const { SIGNS, getSignKey, fortuneFor, computePair, resolveSign, parseDate, fmtDate, DIM_KEYS } = D;
 
   const pad2 = n => String(n).padStart(2, "0");
@@ -244,6 +246,17 @@
       }
     }
   ];
+
+  /* 把工具清单与执行器挂到全局，供 webmcp-demo.js 的「手动试玩」面板使用 */
+  window.__WEBMCP_TOOL_API__ = tools.map(t => ({
+    name: t.name,
+    description: t.description,
+    readOnly: !!(t.annotations && t.annotations.readOnlyHint),
+    execute: t.execute
+  }));
+
+  // 环境不支持 WebMCP：到此为止，不再尝试注册，页面其他功能不受影响
+  if (!supported) return;
 
   (async function register() {
     for (const tool of tools) {
