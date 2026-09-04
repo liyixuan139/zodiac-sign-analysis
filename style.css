@@ -435,3 +435,23 @@ footer { text-align: center; color: var(--text-3); font-size: 12px; margin-top: 
 .wmcp-runstatus { flex-basis: 100%; font-size: 13px; color: var(--text-2); letter-spacing: .3px; }
 .wmcp-runstatus.ok { color: #8fd79c; }
 .wmcp-run:disabled { opacity: .55; cursor: default; }
+
+/* ---------- 悬浮「一键演示」：滚动时一直跟在屏幕底部 ---------- */
+.wmcp-float {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+  z-index: 30; display: flex; align-items: center; gap: 12px;
+  max-width: calc(100vw - 24px);
+  padding: 6px 8px 6px 20px; border-radius: 999px;
+  background: rgba(13, 13, 22, .94);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .55);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  animation: fadeUp .25s ease both;
+}
+.wmcp-float[hidden] { display: none; }
+.wmcp-float-status {
+  font-size: 12px; color: var(--text-2); letter-spacing: .3px;
+  max-width: 46vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wmcp-float-status.ok { color: #8fd79c; }
+.wmcp-runall.slim { padding: 9px 18px; font-size: 13px; border-radius: 999px; box-shadow: none; }

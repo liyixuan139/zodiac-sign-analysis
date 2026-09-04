@@ -282,6 +282,8 @@
 
     const runAllBtn = document.getElementById("wmcpRunAll");
     if (runAllBtn) runAllBtn.addEventListener("click", runAllTools);
+    const runAllFloat = document.getElementById("wmcpRunAllFloat");
+    if (runAllFloat) runAllFloat.addEventListener("click", runAllTools);
   }
 
   // 执行单个工具：paramsOverride 缺省时从对应卡片读参；返回工具原始结果
@@ -309,6 +311,7 @@
   /* ---------- 一键依次执行全部 7 个工具（自动演示） ---------- */
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const SAMPLE_BIRTHDAY = "1996-08-15"; // 示例生日：不动用户真实设置，跑完清空 / 还原
+  const DEMO_STEP_MS = 1100; // 每步停留时长：让观众看清每个工具的输入与结果
 
   // 一键演示用参数：优先取各卡片当前值，缺省回落到稳妥默认
   function demoParamsFor(name) {
@@ -333,16 +336,20 @@
 
   async function runAllTools() {
     const btn = document.getElementById("wmcpRunAll");
-    const status = document.getElementById("wmcpRunStatus");
-    if (window.__WEBMCP_RUNNING__ || !status) return;
+    const floatBtn = document.getElementById("wmcpRunAllFloat");
+    const statuses = [document.getElementById("wmcpRunStatus"), document.getElementById("wmcpFloatStatus")].filter(Boolean);
+    const runBtns = [btn, floatBtn].filter(Boolean);
+    if (window.__WEBMCP_RUNNING__ || !statuses.length) return;
     window.__WEBMCP_RUNNING__ = true;
 
     const allRuns = Array.prototype.slice.call(box.querySelectorAll(".wmcp-run"));
     const setBusy = busy => {
-      if (btn) { btn.disabled = busy; btn.textContent = busy ? "⏳ 正在依次执行…" : "▶ 一键依次执行 7 个工具"; }
+      runBtns.forEach(b => { b.disabled = busy; });
+      if (btn) btn.textContent = busy ? "⏳ 正在依次执行…" : "▶ 一键依次执行 7 个工具";
+      if (floatBtn) floatBtn.textContent = busy ? "⏳ 演示中…" : "▶ 一键演示";
       allRuns.forEach(b => { b.disabled = busy; });
     };
-    const show = (cls, txt) => { status.className = "wmcp-runstatus" + (cls ? " " + cls : ""); status.textContent = txt; };
+    const show = (cls, txt) => statuses.forEach(s => { s.classList.toggle("ok", cls === "ok"); s.textContent = txt; });
 
     // 生日动作对真实本地存储生效：先记录现状，演示结束还原，避免覆盖用户设置
     const bd = window.__ZODIAC_BD__;
@@ -350,6 +357,7 @@
 
     const steps = R_NAMES.concat(B_NAMES); // 4 分析 + 3 生日
     setBusy(true);
+    syncFloat();
     try {
       for (let i = 0; i < steps.length; i++) {
         const name = steps[i];
@@ -357,7 +365,7 @@
         const card = document.getElementById("wmctool-" + name);
         if (card && typeof card.scrollIntoView === "function") card.scrollIntoView({ behavior: "smooth", block: "center" });
         runTool(name, demoParamsFor(name));
-        await sleep(320);
+        await sleep(DEMO_STEP_MS);
       }
 
       // 还原用户原本保存的生日（若有）
@@ -367,15 +375,39 @@
           if (typeof renderBirthdayUI === "function") renderBirthdayUI();
           runTool("get_birthday"); // 刷新「读取生日」卡，与还原后的真实状态一致
         } catch (e) { /* 忽略 */ }
-        show("ok", `✅ 7 个工具已依次执行完成。示例生日已清除，并还原你原本保存的生日 ${priorBirthday}。`);
+        show("ok", `✅ 完成。示例生日已清除，并还原你原本保存的生日 ${priorBirthday}。`);
       } else {
-        show("ok", "✅ 7 个工具已依次执行完成。生日类工具演示后已清空，不留痕迹。");
+        show("ok", "✅ 完成。7 个工具已依次执行完，生日类演示用数据已清空，不留痕迹。");
       }
-      if (btn && typeof btn.scrollIntoView === "function") btn.scrollIntoView({ behavior: "smooth", block: "center" });
     } finally {
       setBusy(false);
       window.__WEBMCP_RUNNING__ = false;
+      syncFloat();
     }
+  }
+
+  /* ---------- 悬浮「一键演示」：顶部按钮滚出屏幕后，底部常驻一个，方便随时再点 / 看进度 ---------- */
+  const floatBar = document.getElementById("wmcpFloat");
+  function syncFloat() {
+    if (!floatBar) return;
+    const tab = document.getElementById("tab-webmcp");
+    const on = !!(tab && tab.classList && tab.classList.contains("active"));
+    let show = !!window.__WEBMCP_RUNNING__; // 演示中始终显示，好跟进度
+    if (!show && on) {
+      const cta = document.getElementById("wmcpDemoCta");
+      if (cta && typeof cta.getBoundingClientRect === "function") {
+        show = cta.getBoundingClientRect().bottom < 72; // 顶部 CTA 已滚出可视区
+      }
+    }
+    floatBar.hidden = !(on && show);
+  }
+  if (typeof window.addEventListener === "function") window.addEventListener("scroll", syncFloat, { passive: true });
+  if (typeof document.addEventListener === "function") {
+    // 切换 tab 也要刷新：仅 WebMCP tab 内才显示
+    document.addEventListener("click", e => {
+      const t = e.target;
+      if (t && t.classList && t.classList.contains("tab")) setTimeout(syncFloat, 50);
+    });
   }
 
   /* 环境提示（用 webmcp.js 写好的状态） */
