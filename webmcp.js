@@ -162,6 +162,22 @@
         if (!aKey) return badSign(sign_a);
         if (!bKey) return badSign(sign_b);
         const r = computePair(aKey, bKey);
+
+        /* 页面联动：把本次配对结果同步到网站「💞 配对测试」面板（含五维契合度）。
+           真 WebMCP（AI 调用）会切到配对 tab 展示这次操作；
+           网页内手动试玩则只同步面板、不跳页（见 webmcp-demo.js 的 __WEBMCP_DEMO_RUN__ 标记）。 */
+        try {
+          const isDemoRun = !!window.__WEBMCP_DEMO_RUN__;
+          const sA = document.getElementById("pairA");
+          const sB = document.getElementById("pairB");
+          if (sA && sB) { sA.value = aKey; sB.value = bKey; }
+          if (!isDemoRun && typeof document.querySelector === "function") {
+            const pairTab = document.querySelector('.tab[data-tab="pair"]');
+            if (pairTab && typeof pairTab.click === "function") pairTab.click();
+          }
+          if (typeof renderPair === "function") renderPair();
+        } catch (e) { /* DOM 不可用（无头 / 测试环境）时忽略 */ }
+
         return {
           A: { key: aKey, name: r.A.name, symbol: r.A.symbol, element: r.A.element },
           B: { key: bKey, name: r.B.name, symbol: r.B.symbol, element: r.B.element },

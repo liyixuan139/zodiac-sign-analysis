@@ -89,10 +89,11 @@
   const miniCard = (title, text) =>
     `<div class="card section-card"><div class="card-title">${title}</div><p>${esc(text)}</p></div>`;
 
-  const dimRows = (labels, values) => values.map((v, i) =>
+  // items: [{ label, value }]，value 为 0-100 分数（条宽由此驱动）
+  const dimRows = items => items.map((it, i) =>
     `<div class="dim-row">
-       <div class="dim-label"><span>${labels[i]}</span><b>${v}</b></div>
-       <div class="meter"><div class="meter-fill" data-score="${v}"></div></div>
+       <div class="dim-label"><span>${it.label}</span><b>${it.value}</b></div>
+       <div class="meter"><div class="meter-fill" data-score="${it.value}"></div></div>
      </div>`).join("");
 
   // 通用「运势」结果块（daily_fortune 与 analyze_birthday 共用）
@@ -169,7 +170,7 @@
         </div>
         <div class="card section-card">
           <div class="card-title">📊 性格五维</div>
-          ${dimRows(TRAITS, res.traits)}
+          ${dimRows(TRAITS.map((t, i) => ({ label: t, value: res.traits[i] })))}
         </div>
       </div>
     </div>`;
@@ -191,7 +192,7 @@
         style="background:linear-gradient(90deg,${v.color},${v.color}88)"></div></div>
       <p class="pair-advice">${esc(v.advice)}</p>
       <p class="wmcp-caption" style="margin-top:16px">五维契合度</p>
-      ${dimRows(["情感", "沟通", "激情", "信任", "相处"], res.dims)}
+      ${dimRows(res.dims.map(o => ({ label: o.dim, value: o.score })))}
     </div>`;
   }
 
@@ -283,10 +284,14 @@
     const out = document.getElementById("wmcout-" + name);
     if (!tool || !out || typeof tool.execute !== "function") return;
     let res;
+    // 标记这次是「人类手动试玩」：工具若带页面联动（如 pair 同步主面板），会同步但不跳 tab
+    window.__WEBMCP_DEMO_RUN__ = true;
     try {
       res = tool.execute(readParams(name));
     } catch (e) {
       res = { error: "执行出错：" + (e && e.message ? e.message : e) };
+    } finally {
+      delete window.__WEBMCP_DEMO_RUN__;
     }
     out.innerHTML = renderResult(name, res);
     requestAnimationFrame(() => {
