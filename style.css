@@ -410,3 +410,28 @@ footer { text-align: center; color: var(--text-3); font-size: 12px; margin-top: 
 /* 尺寸微调 */
 .wmcp-out .section-card p { font-size: 13.5px; }
 .wmcp-ana > .card.section-card { margin-top: 14px; }
+
+/* ---------- WebMCP 一键演示 CTA ---------- */
+.wmcp-demo-cta {
+  margin-top: 18px; padding: 20px 24px;
+  display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; justify-content: space-between;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  background: linear-gradient(120deg, rgba(109,183,240,.09), rgba(179,136,255,.06), transparent);
+}
+.wmcp-demo-cta-text { flex: 1; min-width: 260px; }
+.wmcp-demo-cta h4 { font-size: 15px; letter-spacing: .5px; margin-bottom: 6px; }
+.wmcp-demo-cta p { color: var(--text-3); font-size: 12.5px; }
+.wmcp-demo-cta p b { color: var(--text-2); }
+.wmcp-runall {
+  border: none; cursor: pointer; font-family: inherit; flex: none; white-space: nowrap;
+  background: linear-gradient(135deg, #6db7f0, #b388ff);
+  color: #0d0d16; font-weight: 700; font-size: 14.5px; letter-spacing: 1px;
+  padding: 13px 26px; border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(109,183,240,.35);
+  transition: transform .15s, box-shadow .2s, opacity .2s;
+}
+.wmcp-runall:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(109,183,240,.45); }
+.wmcp-runall:disabled { opacity: .55; cursor: default; }
+.wmcp-runstatus { flex-basis: 100%; font-size: 13px; color: var(--text-2); letter-spacing: .3px; }
+.wmcp-runstatus.ok { color: #8fd79c; }
+.wmcp-run:disabled { opacity: .55; cursor: default; }

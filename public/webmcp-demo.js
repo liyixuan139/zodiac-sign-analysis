@@ -43,6 +43,8 @@
 
   /* ---------- 表单控件 ---------- */
   const today = todayStr();
+  // 今天对应的星座 key，用作 daily_fortune / analyze 的演示默认
+  const todayKey = (() => { const n = new Date(); return getSignKey(n.getMonth() + 1, n.getDate()); })();
 
   function fieldsFor(name) {
     switch (name) {
@@ -233,7 +235,7 @@
     const m = META[t.name];
     const fields = fieldsFor(t.name);
     const roCls = m.tag === "动作" ? "action" : "ro";
-    return `<div class="card wmcp-tool">
+    return `<div class="card wmcp-tool" id="wmctool-${t.name}">
       <div class="wmcp-t-h">
         <span class="wmcp-t-icon">${m.icon}</span>
         <div class="wmcp-t-meta">
@@ -277,17 +279,21 @@
     box.querySelectorAll(".wmcp-run").forEach(btn => {
       btn.addEventListener("click", () => runTool(btn.dataset.run));
     });
+
+    const runAllBtn = document.getElementById("wmcpRunAll");
+    if (runAllBtn) runAllBtn.addEventListener("click", runAllTools);
   }
 
-  function runTool(name) {
+  // 执行单个工具：paramsOverride 缺省时从对应卡片读参；返回工具原始结果
+  function runTool(name, paramsOverride) {
     const tool = api.find(t => t.name === name);
     const out = document.getElementById("wmcout-" + name);
-    if (!tool || !out || typeof tool.execute !== "function") return;
+    if (!tool || !out || typeof tool.execute !== "function") return null;
     let res;
-    // 标记这次是「人类手动试玩」：工具若带页面联动（如 pair 同步主面板），会同步但不跳 tab
+    // 标记这次是「人类试玩」：工具若带页面联动（如 pair 同步主面板），会同步但不跳 tab
     window.__WEBMCP_DEMO_RUN__ = true;
     try {
-      res = tool.execute(readParams(name));
+      res = tool.execute(paramsOverride !== undefined ? paramsOverride : readParams(name));
     } catch (e) {
       res = { error: "执行出错：" + (e && e.message ? e.message : e) };
     } finally {
@@ -297,6 +303,79 @@
     requestAnimationFrame(() => {
       out.querySelectorAll(".meter-fill").forEach(f => { f.style.width = f.dataset.score + "%"; });
     });
+    return res;
+  }
+
+  /* ---------- 一键依次执行全部 7 个工具（自动演示） ---------- */
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const SAMPLE_BIRTHDAY = "1996-08-15"; // 示例生日：不动用户真实设置，跑完清空 / 还原
+
+  // 一键演示用参数：优先取各卡片当前值，缺省回落到稳妥默认
+  function demoParamsFor(name) {
+    const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
+    switch (name) {
+      case "list_zodiac_signs": return {};
+      case "analyze_birthday": return { birthday: val("wmc_analyze_birthday") || today };
+      case "daily_fortune": {
+        const s = val("wmc_df_sign") || todayKey;
+        const d = val("wmc_df_date");
+        return d ? { sign: s, date: d } : { sign: s };
+      }
+      case "pair_compatibility": {
+        const a = val("wmc_pa_a") || "leo";
+        const b = val("wmc_pa_b") || "aquarius";
+        return { sign_a: a, sign_b: b };
+      }
+      case "set_birthday": return { birthday: SAMPLE_BIRTHDAY };
+      default: return {}; // get_birthday / clear_birthday
+    }
+  }
+
+  async function runAllTools() {
+    const btn = document.getElementById("wmcpRunAll");
+    const status = document.getElementById("wmcpRunStatus");
+    if (window.__WEBMCP_RUNNING__ || !status) return;
+    window.__WEBMCP_RUNNING__ = true;
+
+    const allRuns = Array.prototype.slice.call(box.querySelectorAll(".wmcp-run"));
+    const setBusy = busy => {
+      if (btn) { btn.disabled = busy; btn.textContent = busy ? "⏳ 正在依次执行…" : "▶ 一键依次执行 7 个工具"; }
+      allRuns.forEach(b => { b.disabled = busy; });
+    };
+    const show = (cls, txt) => { status.className = "wmcp-runstatus" + (cls ? " " + cls : ""); status.textContent = txt; };
+
+    // 生日动作对真实本地存储生效：先记录现状，演示结束还原，避免覆盖用户设置
+    const bd = window.__ZODIAC_BD__;
+    const priorBirthday = (bd && typeof bd.get === "function") ? bd.get() : null;
+
+    const steps = R_NAMES.concat(B_NAMES); // 4 分析 + 3 生日
+    setBusy(true);
+    try {
+      for (let i = 0; i < steps.length; i++) {
+        const name = steps[i];
+        show("", `⏳ 第 ${i + 1}/${steps.length} 步：正在执行 ${name} …`);
+        const card = document.getElementById("wmctool-" + name);
+        if (card && typeof card.scrollIntoView === "function") card.scrollIntoView({ behavior: "smooth", block: "center" });
+        runTool(name, demoParamsFor(name));
+        await sleep(320);
+      }
+
+      // 还原用户原本保存的生日（若有）
+      if (priorBirthday) {
+        try {
+          bd.set(priorBirthday);
+          if (typeof renderBirthdayUI === "function") renderBirthdayUI();
+          runTool("get_birthday"); // 刷新「读取生日」卡，与还原后的真实状态一致
+        } catch (e) { /* 忽略 */ }
+        show("ok", `✅ 7 个工具已依次执行完成。示例生日已清除，并还原你原本保存的生日 ${priorBirthday}。`);
+      } else {
+        show("ok", "✅ 7 个工具已依次执行完成。生日类工具演示后已清空，不留痕迹。");
+      }
+      if (btn && typeof btn.scrollIntoView === "function") btn.scrollIntoView({ behavior: "smooth", block: "center" });
+    } finally {
+      setBusy(false);
+      window.__WEBMCP_RUNNING__ = false;
+    }
   }
 
   /* 环境提示（用 webmcp.js 写好的状态） */
