@@ -163,19 +163,22 @@
         if (!bKey) return badSign(sign_b);
         const r = computePair(aKey, bKey);
 
-        /* 页面联动：把本次配对结果同步到网站「💞 配对测试」面板（含五维契合度）。
-           真 WebMCP（AI 调用）会切到配对 tab 展示这次操作；
-           网页内手动试玩则只同步面板、不跳页（见 webmcp-demo.js 的 __WEBMCP_DEMO_RUN__ 标记）。 */
+        /* 页面联动：把本次配对结果展示到网站「💞 配对测试」面板。
+           只有真 WebMCP（AI 调用）才驱动网页 —— 设好两个星座、切到配对 tab 展示这次操作；
+           网页内手动试玩 / 一键演示（__WEBMCP_DEMO_RUN__ 标记）只把结果留在 WebMCP 卡里、
+           不碰真实配对面板，否则会出现「没点测一测，配对 tab 却自动出了结果」。 */
         try {
           const isDemoRun = !!window.__WEBMCP_DEMO_RUN__;
-          const sA = document.getElementById("pairA");
-          const sB = document.getElementById("pairB");
-          if (sA && sB) { sA.value = aKey; sB.value = bKey; }
-          if (!isDemoRun && typeof document.querySelector === "function") {
-            const pairTab = document.querySelector('.tab[data-tab="pair"]');
-            if (pairTab && typeof pairTab.click === "function") pairTab.click();
+          if (!isDemoRun) {
+            const sA = document.getElementById("pairA");
+            const sB = document.getElementById("pairB");
+            if (sA && sB) { sA.value = aKey; sB.value = bKey; }
+            if (typeof document.querySelector === "function") {
+              const pairTab = document.querySelector('.tab[data-tab="pair"]');
+              if (pairTab && typeof pairTab.click === "function") pairTab.click();
+            }
+            if (typeof renderPair === "function") renderPair();
           }
-          if (typeof renderPair === "function") renderPair();
         } catch (e) { /* DOM 不可用（无头 / 测试环境）时忽略 */ }
 
         return {
